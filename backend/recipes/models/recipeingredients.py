@@ -6,20 +6,25 @@ class RecipeIngredient(models.Model):
 
     recipe = models.ForeignKey(
         'Recipe',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='рецепт'
     )
     ingredient = models.ForeignKey(
         'Ingredient',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='ингредиенты'
     )
-    quantity = models.PositiveSmallIntegerField()
+    quantity = models.PositiveSmallIntegerField(
+        verbose_name='количество'
+    )
 
     class Meta:
-        verbose_name = 'состав'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return (
-            f'{self.recipe.name}:'
+            f'Рецепт {self.recipe.name}: '
             f'{self.ingredient.name} - '
             f'{self.quantity}{self.ingredient.measurement_unit}'
         )
