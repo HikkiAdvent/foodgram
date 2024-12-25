@@ -12,3 +12,10 @@ class Ingredient(models.Model):
         max_length=64,
         verbose_name='единица измерения'
     )
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.name

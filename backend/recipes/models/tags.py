@@ -6,7 +6,7 @@ class Tag(models.Model):
 
     name = models.CharField(
         max_length=32,
-        verbose_name='тэг',
+        verbose_name='тег',
         unique=True
     )
     slug = models.SlugField(
@@ -15,3 +15,10 @@ class Tag(models.Model):
         null=True,
         blank=True
     )
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name
