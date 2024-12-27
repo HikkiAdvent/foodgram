@@ -39,7 +39,7 @@ class Recipe(models.Model):
         through='RecipeIngredient',
         verbose_name='ингредиенты'
     )
-    pub_date =  models.DateTimeField(auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Рецепт'
