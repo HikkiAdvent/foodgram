@@ -30,3 +30,4 @@ class UserAdmin(admin.ModelAdmin):
         'last_name',
     )
     inlines = (FollowerInline, FavoriteInline, ShoppingListInline)
+    search_fields = ('username', 'email')

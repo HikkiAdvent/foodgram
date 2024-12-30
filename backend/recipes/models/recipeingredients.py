@@ -14,7 +14,7 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         verbose_name='ингредиенты'
     )
-    quantity = models.PositiveSmallIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='количество'
     )
 

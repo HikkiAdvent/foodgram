@@ -27,8 +27,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         upload_to='image/',
         verbose_name='изображение',
-        null=True,  #
-        blank=True,  # Тестовая часть
     )
     tags = models.ManyToManyField(
         'Tag',
