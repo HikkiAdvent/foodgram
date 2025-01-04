@@ -26,5 +26,5 @@ class RecipeIngredient(models.Model):
         return (
             f'Рецепт {self.recipe.name}: '
             f'{self.ingredient.name} - '
-            f'{self.quantity}{self.ingredient.measurement_unit}'
+            f'{self.amount}{self.ingredient.measurement_unit}'
         )
