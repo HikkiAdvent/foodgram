@@ -7,7 +7,8 @@ from recipes.models.ingredients import Ingredient
 from recipes.models.recipeingredients import RecipeIngredient
 from recipes.models.tags import Tag
 from api.v1.recipes.fields import (
-    Base64ImageField, RecipeIngredientCreateSerializer
+    Base64ImageField, RecipeIngredientCreateSerializer,
+    RecipeIngredientSerializer
 )
 
 User = get_user_model()
@@ -29,20 +30,6 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RecipeIngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для ингредиентов."""
-
-    name = serializers.CharField(source='ingredient.name', read_only=True)
-    measurement_unit = serializers.CharField(
-        source='ingredient.measurement_unit',
-        read_only=True
-    )
-
-    class Meta:
-        model = RecipeIngredient
-        fields = ('id', 'amount', 'name', 'measurement_unit')
-
-
 class RecipesSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов."""
 
@@ -55,6 +42,8 @@ class RecipesSerializer(serializers.ModelSerializer):
         write_only=True
     )
     image = Base64ImageField()
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -68,6 +57,12 @@ class RecipesSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def get_is_favorited(self, obj):
+        return obj in self.request.user.favorites.all()
+    
+    def get_is_in_shopping_list(self, obj):
+        return obj in self.request.user
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
