@@ -45,8 +45,8 @@ class ListCreateDestroyMixin(
     pass
 
 
-class CRUDMixin( 
-    PatchModelMixin, 
+class CRUDMixin(
+    PatchModelMixin,
     mixins.RetrieveModelMixin,
     ListCreateDestroyMixin,
 ):

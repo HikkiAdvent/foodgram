@@ -14,7 +14,8 @@ class User(AbstractUser):
         through='Favorite'
     )
     shopping_list = models.ManyToManyField(
-        'recipes.Ingredient',
+        'recipes.Recipe',
+        related_name='users',
         through='ShoppingList'
     )
 

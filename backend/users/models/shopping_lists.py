@@ -8,33 +8,20 @@ class ShoppingList(models.Model):
         'User',
         on_delete=models.CASCADE,
     )
-    ingredient = models.ForeignKey(
-        'recipes.Ingredient',
+    recipes = models.ForeignKey(
+        'recipes.Recipe',
         on_delete=models.CASCADE,
         related_name='shopping_lists',
-        verbose_name='ингредиенты'
-    )
-    quantity = models.PositiveIntegerField(
-        verbose_name='количество'
-    )
-    measurement_unit = models.CharField(
-        max_length=64,
-        verbose_name='Единица измерения',
-        blank=True, null=True
+        verbose_name='рецепты'
     )
 
     class Meta:
-        unique_together = ('user', 'ingredient')
+        unique_together = ('user', 'recipes')
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
 
     def __str__(self):
         return (
             f'{self.user.username} - '
-            f'{self.ingredient.name}: {self.quantity}'
+            f'{self.recipes.name}'
         )
-
-    def save(self, *args, **kwargs):
-        if not self.measurement_unit and self.ingredient:
-            self.measurement_unit = self.ingredient.measurement_unit
-        super().save(*args, **kwargs)

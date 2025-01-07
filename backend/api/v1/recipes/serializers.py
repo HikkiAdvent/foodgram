@@ -60,7 +60,7 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         return obj in self.request.user.favorites.all()
-    
+
     def get_is_in_shopping_list(self, obj):
         return obj in self.request.user
 
