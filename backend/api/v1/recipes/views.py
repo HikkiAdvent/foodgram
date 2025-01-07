@@ -10,7 +10,10 @@ from recipes.models.tags import Tag
 
 
 class RecipeViewSet(CRUDMixin):
-    queryset = Recipe.objects.prefetch_related('tags', 'ingredients').all()
+    queryset = Recipe.objects.prefetch_related(
+        'tags',
+        'ingredients',
+    ).all()
     serializer_class = RecipesSerializer
 
 

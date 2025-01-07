@@ -56,13 +56,15 @@ class RecipesSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
+            'is_favorited',
+            'is_in_shopping_cart',
         )
 
     def get_is_favorited(self, obj):
-        return obj in self.request.user.favorites.all()
+        return obj in User.objects.get(username='valerij').favorites.all()  # self.context['request'].user.favorites.all()
 
-    def get_is_in_shopping_list(self, obj):
-        return obj in self.request.user
+    def get_is_in_shopping_cart(self, obj):
+        return obj in User.objects.get(username='valerij').shopping_list.all()  # self.context['request'].user.shopping_list.all()
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -110,3 +112,8 @@ class RecipesSerializer(serializers.ModelSerializer):
             )
         instance.save()
         return instance
+
+
+class ShoppingListSerializer(serializers.ModelSerializer):
+    """Сериализатор для списка покупок"""
+
