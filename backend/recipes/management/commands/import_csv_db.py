@@ -12,19 +12,19 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         csv_file = kwargs['csv_file']
         with open(csv_file, newline='', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
+            reader = csv.reader(file)
             for row in reader:
-                name = row['name']
-                measurement_unit = row['measurement_unit']
-                ingredient, created = Ingredient.objects.get_or_create(
-                    name=name,
-                    measurement_unit=measurement_unit
-                )
-                if created:
-                    self.stdout.write(self.style.SUCCESS(f'''
+                if len(row) == 2:  # Проверка на количество элементов
+                    name, measurement_unit = row
+                    ingredient, created = Ingredient.objects.get_or_create(
+                        name=name,
+                        measurement_unit=measurement_unit
+                    )
+                    if created:
+                        self.stdout.write(self.style.SUCCESS(f'''
                                                          Ингредиент "{name}"
                                                          успешно добавлен.'''))
-                else:
-                    self.stdout.write(self.style.WARNING(f'''
+                    else:
+                        self.stdout.write(self.style.WARNING(f'''
                                                          Ингредиент "{name}"
                                                          уже существует.'''))
