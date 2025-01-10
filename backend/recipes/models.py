@@ -2,9 +2,11 @@ import re
 from django.db import models
 from django.forms import ValidationError
 from django.core.validators import MinValueValidator
-from users.models import User
+from django.contrib.auth import get_user_model
 import string
 import random
+
+User = get_user_model()
 
 
 class Tag(models.Model):
@@ -79,56 +81,6 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredients.name}'
-
-
-class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='favorites',
-                             verbose_name='Пользователь')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-                               related_name='favorites', verbose_name='Рецепт')
-
-    class Meta:
-        unique_together = ('user', 'recipe')
-        verbose_name = 'избранное'
-        verbose_name_plural = 'Избранное'
-
-    def __str__(self):
-        return f'{self.user.username} - {self.recipe.name}'
-
-
-class ShoppingCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='shopping_carts',
-                             verbose_name='Пользователь')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
-                               related_name='shopping_carts',
-                               verbose_name='Рецепт')
-
-    class Meta:
-        unique_together = ('user', 'recipe')
-        verbose_name = 'список покупок'
-        verbose_name_plural = 'Списки покупок'
-
-    def __str__(self):
-        return f'{self.user.username} - {self.recipe.name}'
-
-
-class Subscription(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='follower',
-                             verbose_name='Пользователь')
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='following',
-                               verbose_name='Автор')
-
-    class Meta:
-        unique_together = ('user', 'author')
-        verbose_name = 'подписка'
-        verbose_name_plural = 'Подписки'
-
-    def __str__(self):
-        return f'{self.user.username} - {self.author.username}'
 
 
 class ShortLink(models.Model):

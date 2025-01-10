@@ -1,10 +1,11 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from recipes.models import (User, Recipe,
-                            Tag, Ingredient,
-                            Favorite, ShoppingCart,
-                            RecipeIngredient, ShortLink,
-                            Subscription)
+from recipes.models import (
+    Recipe,
+    Tag, Ingredient,
+    RecipeIngredient, ShortLink,
+)
+from users.models import Favorite, Subscription, ShoppingCart
 from .serializers import (UserRegistrationSerializer, UserListSerializer,
                           UserProfileSerializer, TagSerializer,
                           IngredientSerializer, RecipeSerializer,
@@ -16,6 +17,9 @@ from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -1,11 +1,15 @@
 from rest_framework import serializers
-from recipes.models import (Recipe, Ingredient,
-                            Tag, Favorite,
-                            ShoppingCart, Subscription,
-                            RecipeIngredient, ShortLink)
-from users.models import User
+from django.contrib.auth import get_user_model
+from recipes.models import (
+    Recipe, Ingredient,
+    Tag, RecipeIngredient,
+    ShortLink
+)
+from users.models import Favorite, ShoppingCart, Subscription
 import base64
 from django.core.files.base import ContentFile
+
+User = get_user_model()
 
 
 class Base64ImageField(serializers.ImageField):

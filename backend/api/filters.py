@@ -1,5 +1,6 @@
 import django_filters
-from recipes.models import Ingredient, Recipe, ShoppingCart, Tag
+from recipes.models import Ingredient, Recipe, Tag
+from users.models import ShoppingCart
 
 
 class IngredientFilter(django_filters.FilterSet):
