@@ -15,23 +15,13 @@ class CustomTokenCreateView(APIView):
         return Response(token_data, status=status.HTTP_200_OK)
 
 
-class LogoutView(APIView):
-    """Кастомный View для выхода пользователя."""
+class CustomTokenDestroyView(APIView):
+    """Удаление JWT токена."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        try:
-            auth_header = request.headers.get('Authorization')
-            if not auth_header or not auth_header.startswith('Bearer '):
-                return Response({"detail": "Authorization header is required."}, status=status.HTTP_401_UNAUTHORIZED)
-
-            refresh_token = auth_header.split()[1]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # JWT не удаляется с сервера, просто возвращаем статус 204
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SetPasswordView(APIView):

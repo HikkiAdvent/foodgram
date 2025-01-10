@@ -35,7 +35,7 @@ class RecipesSerializer(serializers.ModelSerializer):
 
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
-        default=User.objects.get(username='admin'),
+        default=serializers.CurrentUserDefault(),
     )
     ingredients = RecipeIngredientCreateSerializer(
         many=True,
@@ -61,10 +61,10 @@ class RecipesSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        return obj in User.objects.get(username='valerij').favorites.all()  # self.context['request'].user.favorites.all()
+        return obj in self.context['request'].user.favorites.all()
 
     def get_is_in_shopping_cart(self, obj):
-        return obj in User.objects.get(username='valerij').shopping_list.all()  # self.context['request'].user.shopping_list.all()
+        return obj in self.context['request'].user.shopping_list.all()
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

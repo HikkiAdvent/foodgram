@@ -14,7 +14,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ('first_name', 'last_name', 'email', 'username', 'password')
+        fields = ('id', 'first_name', 'last_name', 'email', 'username', 'password')
 
 
 class CustomTokenCreateSerializer(serializers.Serializer):
@@ -43,17 +43,6 @@ class CustomTokenCreateSerializer(serializers.Serializer):
         return {'auth_token': str(token.access_token)}
 
 
-class UserSerializer(UserSerializer):
-    """Кастомный сериализатор для отображения данных пользователя."""
-
-    is_subscribed = serializers.BooleanField(default=False)  # Ваше поле подписки
-    avatar = serializers.ImageField(source='user.avatar', required=False)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'is_subscribed', 'avatar')
-
-
 class CustomUserSerializer(UserSerializer):
     """Кастомный сериализатор для отображения данных пользователя."""
 
@@ -66,8 +55,7 @@ class CustomUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         """Проверка, подписан ли текущий пользователь на данного пользователя."""
-        user = self.context['request'].user  # Текущий пользователь из запроса
+        user = self.context['request'].user
         if user.is_authenticated:
-            # Проверяем, есть ли связь подписки между текущим пользователем и объектом пользователя
             return user.subscriptions.filter(id=obj.id).exists()
         return False

@@ -109,6 +109,9 @@ DJOSER = {
         'user': 'api.v1.users.serializers.CustomUserSerializer',
 
     },
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny'],  # Разрешить доступ к списку пользователей всем
+    },
 }
 
 LANGUAGE_CODE = 'ru-RU'
