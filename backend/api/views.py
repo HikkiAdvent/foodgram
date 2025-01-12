@@ -18,6 +18,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
 User = get_user_model()
 
@@ -238,8 +239,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredient_id = ingredient.get('id')
             amount = ingredient.get('amount')
             if ingredient_id is not None and amount is not None:
-                current_ingredient = get_object_or_404(Ingredient,
-                                                       id=ingredient_id)
+                try:
+                    amount = int(amount)
+                except ValueError:
+                    raise serializers.ValidationError("Количество должно быть целым числом")
+
+                if amount < 1:
+                    raise serializers.ValidationError("Количество ингредиентов не может быть меньше 1")
+
+                current_ingredient = get_object_or_404(Ingredient, id=ingredient_id)
                 RecipeIngredient.objects.create(
                     ingredients=current_ingredient,
                     recipe=recipe,

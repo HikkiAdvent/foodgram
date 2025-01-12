@@ -3,7 +3,7 @@ services:
 
   frontend:
     container_name: foodgram-front
-    build: ../frontend
+    image: hikkiadvent/foodgram_frontend
     volumes:
       - ./frontend/:/app/result_build/
     networks:
@@ -22,7 +22,7 @@ services:
 
   backend:
     container_name: foodgram-app
-    build: ../backend
+    image: hikkiadvent/foodgram_backend
     restart: always
     volumes:
       - static_dir:/backend_static/static/ 
@@ -34,7 +34,7 @@ services:
 
   nginx:
     container_name: foodgram-proxy
-    image: nginx:1.23.3-alpine
+    image: hikkiadvent/foodgram_backend
     restart: always
     ports:
       - 80:80

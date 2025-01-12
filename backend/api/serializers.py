@@ -125,6 +125,15 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
             'amount': representation['amount']
         }
 
+    def validate_amount(self, value):
+        try:
+            value = int(value)
+        except ValueError:
+            raise serializers.ValidationError("Количество должно быть целым числом")
+        if value < 1:
+            raise serializers.ValidationError("Количество ингредиентов не может быть меньше 1")
+        return value
+
 
 class RecipeSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientSerializer(read_only=True, many=True,
@@ -176,20 +185,20 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients_data:
             ingredient_id = ingredient.get('id')
             amount = ingredient.get('amount')
-            if amount is None or amount < 1:
-                raise serializers.ValidationError(
-                    {'ingredients': '''
-                     Количество ингредиента должно быть больше 0'''})
+            try:
+                amount = int(amount)
+            except (ValueError, TypeError):
+                raise serializers.ValidationError({'ingredients': 'Количество ингредиента должно быть целым числом'})
+
+            if amount < 1:
+                raise serializers.ValidationError({'ingredients': 'Количество ингредиента должно быть больше 0'})
+
             if ingredient_id in ingredient_ids:
-                raise serializers.ValidationError(
-                    {'ingredients': f'''
-                     Ингредиент с id {ingredient_id} уже добавлен'''})
+                raise serializers.ValidationError({'ingredients': f'Ингредиент с id {ingredient_id} уже добавлен'})
             ingredient_ids.add(ingredient_id)
 
             if not Ingredient.objects.filter(id=ingredient_id).exists():
-                raise serializers.ValidationError(
-                    {'ingredients': f'''
-                     Ингредиент с id {ingredient_id} не найден'''})
+                raise serializers.ValidationError({'ingredients': f'Ингредиент с id {ingredient_id} не найден'})
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')

@@ -6,7 +6,7 @@ infra/frontend/build
 __pycache__/
 *.py[cod]
 *$py.class
-
+.dockerignore
 # C extensions
 *.so
 
