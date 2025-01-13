@@ -59,7 +59,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 
-if os.getenv('DB_ENGINE') == 'django.db.backends.postgresql': 
+if os.getenv('DB_ENGINE') != 'django.db.backends.postgresql': 
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
