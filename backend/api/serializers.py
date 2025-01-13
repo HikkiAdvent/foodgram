@@ -1,13 +1,11 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from recipes.models import (
-    Recipe, Ingredient,
-    Tag, RecipeIngredient,
-    ShortLink
-)
-from users.models import Favorite, ShoppingCart, Subscription
 import base64
+
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
+from recipes.models import Ingredient, Recipe, RecipeIngredient, ShortLink, Tag
+from rest_framework import serializers
+
+from users.models import Favorite, ShoppingCart, Subscription
 
 User = get_user_model()
 
@@ -129,9 +127,13 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         try:
             value = int(value)
         except ValueError:
-            raise serializers.ValidationError("Количество должно быть целым числом")
+            raise serializers.ValidationError(
+                'Количество должно быть целым числом'
+            )
         if value < 1:
-            raise serializers.ValidationError("Количество ингредиентов не может быть меньше 1")
+            raise serializers.ValidationError(
+                'Количество ингредиентов не может быть меньше 1'
+            )
         return value
 
 
@@ -188,17 +190,29 @@ class RecipeSerializer(serializers.ModelSerializer):
             try:
                 amount = int(amount)
             except (ValueError, TypeError):
-                raise serializers.ValidationError({'ingredients': 'Количество ингредиента должно быть целым числом'})
+                raise serializers.ValidationError(
+                    {'ingredients':
+                     'Количество ингредиента должно быть целым числом'}
+                )
 
             if amount < 1:
-                raise serializers.ValidationError({'ingredients': 'Количество ингредиента должно быть больше 0'})
+                raise serializers.ValidationError(
+                    {'ingredients':
+                     'Количество ингредиента должно быть больше 0'}
+                )
 
             if ingredient_id in ingredient_ids:
-                raise serializers.ValidationError({'ingredients': f'Ингредиент с id {ingredient_id} уже добавлен'})
+                raise serializers.ValidationError(
+                    {'ingredients':
+                     f'Ингредиент с id {ingredient_id} уже добавлен'}
+                )
             ingredient_ids.add(ingredient_id)
 
             if not Ingredient.objects.filter(id=ingredient_id).exists():
-                raise serializers.ValidationError({'ingredients': f'Ингредиент с id {ingredient_id} не найден'})
+                raise serializers.ValidationError(
+                    {'ingredients':
+                     f'Ингредиент с id {ingredient_id} не найден'}
+                )
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
@@ -223,7 +237,7 @@ class SetPasswordSerializer(serializers.Serializer):
         user = self.context['request'].user
         current_password = attrs.get('current_password')
         if not user.check_password(current_password):
-            raise serializers.ValidationError("Текущий пароль неверен.")
+            raise serializers.ValidationError('Текущий пароль неверен.')
         return attrs
 
     def save(self):

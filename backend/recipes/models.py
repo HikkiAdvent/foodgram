@@ -1,10 +1,11 @@
+import random
 import re
+import string
+
+from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.forms import ValidationError
-from django.core.validators import MinValueValidator
-from django.contrib.auth import get_user_model
-import string
-import random
 
 User = get_user_model()
 

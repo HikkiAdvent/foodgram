@@ -1,24 +1,20 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
-from recipes.models import (
-    Recipe,
-    Tag, Ingredient,
-    RecipeIngredient, ShortLink,
-)
-from users.models import Favorite, Subscription, ShoppingCart
-from .serializers import (UserRegistrationSerializer, UserListSerializer,
-                          UserProfileSerializer, TagSerializer,
-                          IngredientSerializer, RecipeSerializer,
-                          AvatarSerializer, SetPasswordSerializer)
-from .permissions import IsAuthorOrReadOnly
-from .filters import IngredientFilter, RecipeFilter
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.decorators import action
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from django.contrib.auth import get_user_model
-from rest_framework import serializers
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, serializers, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
+
+from recipes.models import Ingredient, Recipe, RecipeIngredient, ShortLink, Tag
+from users.models import Favorite, ShoppingCart, Subscription
+from .filters import IngredientFilter, RecipeFilter
+from .permissions import IsAuthorOrReadOnly
+from .serializers import (AvatarSerializer, IngredientSerializer,
+                          RecipeSerializer, SetPasswordSerializer,
+                          TagSerializer, UserListSerializer,
+                          UserProfileSerializer, UserRegistrationSerializer)
 
 User = get_user_model()
 
@@ -242,12 +238,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 try:
                     amount = int(amount)
                 except ValueError:
-                    raise serializers.ValidationError("Количество должно быть целым числом")
+                    raise serializers.ValidationError(
+                        'Количество должно быть целым числом'
+                    )
 
                 if amount < 1:
-                    raise serializers.ValidationError("Количество ингредиентов не может быть меньше 1")
+                    raise serializers.ValidationError(
+                        'Количество ингредиентов не может быть меньше 1'
+                    )
 
-                current_ingredient = get_object_or_404(Ingredient, id=ingredient_id)
+                current_ingredient = get_object_or_404(
+                    Ingredient,
+                    id=ingredient_id
+                )
                 RecipeIngredient.objects.create(
                     ingredients=current_ingredient,
                     recipe=recipe,
