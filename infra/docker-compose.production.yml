@@ -34,7 +34,7 @@ services:
 
   nginx:
     container_name: foodgram-proxy
-    image: hikkiadvent/foodgram_backend
+    image: hikkiadvent/foodgram_gateway
     restart: always
     ports:
       - 8500:80
