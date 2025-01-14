@@ -134,4 +134,4 @@ jobs:
           sudo docker compose -f infra/docker-compose.production.yml up -d
           sudo docker compose -f infra/docker-compose.production.yml exec backend python manage.py migrate
           sudo docker compose -f infra/docker-compose.production.yml exec backend python manage.py collectstatic --noinput
-          sudo docker compose -f infra/docker-compose.production.yml exec backend python manage.py import_csv_db /app/foodgram/backend/recipes/ingredients.csv
+          sudo docker compose -f infra/docker-compose.production.yml exec backend python manage.py import_csv_db /app/recipes/ingredients.csv
