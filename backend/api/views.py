@@ -9,12 +9,14 @@ from rest_framework.response import Response
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, ShortLink, Tag
 from users.models import Favorite, ShoppingCart, Subscription
-from .filters import IngredientFilter, RecipeFilter
-from .permissions import IsAuthorOrReadOnly
-from .serializers import (AvatarSerializer, IngredientSerializer,
-                          RecipeSerializer, SetPasswordSerializer,
-                          TagSerializer, UserListSerializer,
-                          UserProfileSerializer, UserRegistrationSerializer)
+from api.filters import IngredientFilter, RecipeFilter
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers import (
+    AvatarSerializer, IngredientSerializer,
+    RecipeSerializer, SetPasswordSerializer,
+    TagSerializer, UserListSerializer,
+    UserProfileSerializer, UserRegistrationSerializer
+)
 
 User = get_user_model()
 
