@@ -2,10 +2,10 @@ version: '3.3'
 services:
 
   frontend:
-    container_name: foodgram-front
+    container_name: foodgram-frontend
     image: hikkiadvent/foodgram_frontend
     volumes:
-      - ./frontend/:/app/result_build/
+      - static_dir:/app/result_build/
     networks:
       - foodgram-network
 
@@ -33,15 +33,15 @@ services:
       - foodgram-network
 
   nginx:
-    container_name: foodgram-proxy
+    container_name: foodgram-gateway
     image: hikkiadvent/foodgram_gateway
     restart: always
     ports:
       - 8500:80
     volumes:
       # - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./frontend/build:/usr/share/nginx/html/
-      - ./docs/:/usr/share/nginx/html/api/docs/
+      # - ../frontend/build:/usr/share/nginx/html/
+      # - ../docs/:/usr/share/nginx/html/api/docs/
       - static_dir:/etc/nginx/html/static/
       - media_dir:/etc/nginx/html/media/
     depends_on:
