@@ -1,17 +1,17 @@
 import csv
 
 from django.core.management.base import BaseCommand
-from recipes.models import Ingredient
+from recipes.models import Tag
 
 
 class Command(BaseCommand):
-    help = 'Импорт ингредиентов из CSV файла'
+    help = 'Импорт тегов из CSV файла'
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--csv_file',
             type=str,
-            default='data/ingredients.csv',
+            default='data/tags.csv',
             help='Путь к CSV файлу'
         )
 
@@ -21,16 +21,16 @@ class Command(BaseCommand):
             reader = csv.DictReader(file)
             for row in reader:
                 name = row['name']
-                measurement_unit = row['measurement_unit']
-                ingredient, created = Ingredient.objects.get_or_create(
+                slug = row['slug']
+                tag, created = Tag.objects.get_or_create(
                     name=name,
-                    measurement_unit=measurement_unit
+                    slug=slug
                 )
                 if created:
                     self.stdout.write(self.style.SUCCESS(f'''
-                                                         Ингредиент "{name}"
+                                                         Тег "{name}"
                                                          успешно добавлен.'''))
                 else:
                     self.stdout.write(self.style.WARNING(f'''
-                                                         Ингредиент "{name}"
+                                                         Тег "{name}"
                                                          уже существует.'''))
