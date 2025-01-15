@@ -27,7 +27,7 @@ services:
     image: hikkiadvent/foodgram_gateway
     env_file: .env
     ports:
-      - 8000:80
+      - 8500:80
     volumes:
       - static:/static/
       - media:/media/
