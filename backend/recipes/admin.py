@@ -1,6 +1,26 @@
+from django import forms
 from django.contrib import admin
 
 from recipes import models
+
+
+class RecipeAdminForm(forms.ModelForm):
+    favorites_count = forms.IntegerField(
+        label='Добавления в избранное',
+        required=False,
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    class Meta:
+        model = models.Recipe
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields['favorites_count'].initial = (
+                self.instance.get_favorites_count()
+            )
 
 
 class RecipeIngredientsInline(admin.TabularInline):
@@ -12,6 +32,7 @@ class RecipeIngredientsInline(admin.TabularInline):
 class RecipeAdmin(admin.ModelAdmin):
     """Админка рецептов."""
 
+    form = RecipeAdminForm
     list_display = (
         'name',
         'author',

@@ -70,6 +70,9 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+    def get_favorites_count(self):
+        return self.favorites.count()
+
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
