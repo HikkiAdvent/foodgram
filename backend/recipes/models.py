@@ -56,7 +56,11 @@ class Recipe(models.Model):
                 1, 'Время приготовления не должно быть меньше 1 минуты'
             )
         ])
-    pub_date = models.DateTimeField(default=now)
+    pub_date = models.DateTimeField(
+        default=now,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = 'рецепт'

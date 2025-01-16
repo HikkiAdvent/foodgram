@@ -1,0 +1,4 @@
+username,email,first_name,last_name,password
+john_doe,john.doe@example.com,John,Doe,secretpassword1
+jane_doe,jane.doe@example.com,Jane,Doe,secretpassword2
+Jo_Jo,jojo@example.com,Joseph,Joestar,secretpassword3
