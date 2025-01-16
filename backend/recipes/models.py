@@ -5,6 +5,7 @@ import string
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.timezone import now
 from django.forms import ValidationError
 
 User = get_user_model()
@@ -55,10 +56,12 @@ class Recipe(models.Model):
                 1, 'Время приготовления не должно быть меньше 1 минуты'
             )
         ])
+    pub_date = models.DateTimeField(default=now)
 
     class Meta:
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
+        order_by = ('-pub_date',)
 
     def __str__(self):
         return self.name
