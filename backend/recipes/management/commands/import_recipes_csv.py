@@ -30,8 +30,14 @@ class Command(BaseCommand):
                 ingredients = Ingredient.objects.filter(
                     id__in=row['ingredients'].split(';')
                 )
-                image_path = os.path.join('foodgram_backend/data/', row['image'])
-                recipes = Recipe.objects.filter(author=author, name=row['name'])
+                image_path = os.path.join(
+                    'foodgram_backend/data/',
+                    row['image']
+                )
+                recipes = Recipe.objects.filter(
+                    author=author,
+                    name=row['name']
+                )
                 if recipes.exists():
                     recipe = recipes.first()
                     self.stdout.write(
