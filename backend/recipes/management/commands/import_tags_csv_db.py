@@ -11,7 +11,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--csv_file',
             type=str,
-            default='data/tags.csv',
+            default='foodgram_backend/data/tags.csv',
             help='Путь к CSV файлу'
         )
 
