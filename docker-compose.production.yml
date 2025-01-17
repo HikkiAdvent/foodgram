@@ -7,7 +7,6 @@ volumes:
 
 services:
   db:
-
     image: postgres:13.10
     env_file: .env
     volumes:
@@ -23,7 +22,6 @@ services:
   frontend:
     env_file: .env
     image: hikkiadvent/frontend
-    command: cp -r /app/build/. /frontend_static/
     volumes:
       - static:/frontend_static
   gateway:
