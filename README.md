@@ -1,10 +1,64 @@
-Находясь в папке infra, выполните команду docker-compose up. При выполнении этой команды контейнер frontend, описанный в docker-compose.yml, подготовит файлы, необходимые для работы фронтенд-приложения, а затем прекратит свою работу.
+# Foodgram Project
 
-По адресу http://localhost изучите фронтенд веб-приложения, а по адресу http://localhost/api/docs/ — спецификацию API.
+## Описание
+Foodgram — это платформа для обмена рецептами. Пользователи могут:
+- Выкладывать свои рецепты.
+- Просматривать рецепты других пользователей.
+- Подписываться на других пользователей.
+- Добавлять рецепты в избранное.
+- Формировать список покупок из выбранных рецептов.
+- Скачивать список покупок.
 
-python manage.py load_csv --csv-dir=/home/valerij/dev/foodgram/data --files=ingredients.csv:Ingredient
-# Загрузка ингредиентов
-python manage.py import_csv_db /home/valerij/dev/foodgram/data/ingredients.csv
+## Технологии
+Проект использует следующие технологии:
+- **Python(Django)** — серверная логика приложения.
+- **Docker** — контейнеризация сервисов.
+- **PostgreSQL** — база данных.
+- **React** — клиентская часть приложения.
+- **Nginx** — прокси-сервер для маршрутизации запросов.
 
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_csv_db
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_tags_csv_db
+## Установка
+Для развёртывания проекта выполните следующие шаги:
+
+1. Скачайте и запустите Docker-контейнеры:
+   ```bash
+   sudo docker compose -f docker-compose.production.yml pull
+   sudo docker compose -f docker-compose.production.yml up -d
+   ```
+
+2. Примените миграции базы данных:
+   ```bash
+   sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+   ```
+
+3. Соберите статику проекта:
+   ```bash
+   sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --noinput
+   ```
+
+## Опционально: добавление данных на сервер
+Для импорта данных в базу выполните следующие команды:
+
+- Импортингредиентов:
+  ```bash
+  sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_csv_db
+  ```
+
+- Импорт тегов:
+  ```bash
+  sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_tags_csv_db
+  ```
+
+- Импорт пользователей:
+  ```bash
+  sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_users_csv
+  ```
+
+- Импорт рецептов:
+  ```bash
+  sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_recipes_csv
+  ```
+
+## Автор
+HikkiAdvent
+
