@@ -37,7 +37,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'author',
-        'ingredients'
+        'get_ingredients'
     )
     inlines = (RecipeIngredientsInline,)
     search_fields = ('name', 'author')
@@ -53,6 +53,13 @@ class RecipeAdmin(admin.ModelAdmin):
             raise ValidationError(
                 'Рецепт должен содержать хотя бы один ингредиент.'
             )
+
+    def get_ingredients(self, obj):
+        """Возвращает строку с перечисленными ингредиентами."""
+        return ', '.join(
+            [ingredient.name for ingredient in obj.ingredients.all()]
+        )
+    get_ingredients.short_description = 'Ингредиенты'
 
 
 @admin.register(models.Ingredient)
