@@ -18,9 +18,9 @@ class RecipeFilter(django_filters.FilterSet):
         queryset=Tag.objects.all(),
         to_field_name='slug',
     )
-    author = django_filters.CharFilter(lookup_expr='exact')
     is_in_shopping_cart = django_filters.CharFilter(
-        method='filter_is_in_shopping_cart')
+        method='filter_is_in_shopping_cart'
+    )
     is_favorited = django_filters.CharFilter(method='filter_is_favorited')
 
     class Meta:

@@ -5,18 +5,23 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from foodgram_backend.constants import (
+    TAG_LENGTH, LINK_LENGTH, INGREDIENT_NAME_LENGTH, MEASUREMENT_LENGTH,
+    RECIPE_NAME_LENGTH
+)
+
 User = get_user_model()
 
 
 class Tag(models.Model):
     name = models.CharField(
         'Название',
-        max_length=32,
+        max_length=TAG_LENGTH,
         unique=True
     )
     slug = models.SlugField(
         'Слаг',
-        max_length=32,
+        max_length=TAG_LENGTH,
         unique=True
     )
 
@@ -31,12 +36,12 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=128,
+        max_length=INGREDIENT_NAME_LENGTH,
         unique=True
     )
     measurement_unit = models.CharField(
         'Единица измерения',
-        max_length=64
+        max_length=MEASUREMENT_LENGTH
     )
 
     class Meta:
@@ -56,7 +61,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         'Название',
-        max_length=256
+        max_length=RECIPE_NAME_LENGTH
     )
     image = models.ImageField(
         'Картинка',
@@ -131,7 +136,7 @@ class ShortLink(models.Model):
         on_delete=models.CASCADE
     )
     short_code = models.CharField(
-        max_length=10,
+        max_length=LINK_LENGTH,
         unique=True
     )
 
