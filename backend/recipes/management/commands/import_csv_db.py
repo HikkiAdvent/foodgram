@@ -28,10 +28,12 @@ class Command(BaseCommand):
                     measurement_unit=measurement_unit
                 )
                 if created:
-                    self.stdout.write(self.style.SUCCESS(f'''
-                                                         Ингредиент "{name}"
-                                                         успешно добавлен.'''))
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Ингредиент "{name}" успешно добавлен.'))
                 else:
-                    self.stdout.write(self.style.WARNING(f'''
-                                                         Ингредиент "{name}"
-                                                         уже существует.'''))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'Ингредиент "{name}"уже существует.'
+                        )
+                    )

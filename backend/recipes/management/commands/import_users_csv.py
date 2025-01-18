@@ -36,10 +36,14 @@ class Command(BaseCommand):
                 if created:
                     user.set_password(password)
                     user.save()
-                    self.stdout.write(self.style.SUCCESS(
-                        f'Пользователь "{username}" успешно добавлен.')
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Пользователь "{username}" успешно добавлен.'
+                        )
                     )
                 else:
-                    self.stdout.write(self.style.WARNING(
-                        f'Пользователь "{username}" уже существует.')
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'Пользователь "{username}" уже существует.'
+                        )
                     )

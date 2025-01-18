@@ -27,10 +27,14 @@ class Command(BaseCommand):
                     slug=slug
                 )
                 if created:
-                    self.stdout.write(self.style.SUCCESS(f'''
-                                                         Тег "{name}"
-                                                         успешно добавлен.'''))
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f'Тег "{name}" успешно добавлен.'
+                        )
+                    )
                 else:
-                    self.stdout.write(self.style.WARNING(f'''
-                                                         Тег "{name}"
-                                                         уже существует.'''))
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f'Тег "{name}" уже существует.'
+                        )
+                    )
