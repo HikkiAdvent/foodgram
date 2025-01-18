@@ -1,13 +1,18 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import EmailValidator, RegexValidator
+from django.core.validators import RegexValidator
 from django.db import models
 
 
 class User(AbstractUser):
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
-    email = models.EmailField('Электронная почта', unique=True,
-                              max_length=254, blank=False,
-                              null=False, validators=[EmailValidator()],)
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        blank=True,
+        null=True
+    )
+    email = models.EmailField(
+        'Электронная почта',
+        unique=True,
+    )
     username = models.CharField(
         'Имя пользователя',
         max_length=150,
@@ -40,27 +45,24 @@ class User(AbstractUser):
             'blank': "Это поле обязательно для заполнения.",
         }
     )
-    password = models.CharField(
-        'Пароль',
-        max_length=150,
-        blank=False,
-        null=False,
-    )
 
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
 
-    def __str__(self):
-        return self.username
-
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='favorites',
-                             verbose_name='Пользователь')
-    recipe = models.ForeignKey('recipes.Recipe', on_delete=models.CASCADE,
-                               related_name='favorites', verbose_name='Рецепт')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        'recipes.Recipe',
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Рецепт'
+    )
 
     class Meta:
         unique_together = ('user', 'recipe')
@@ -72,12 +74,18 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='shopping_carts',
-                             verbose_name='Пользователь')
-    recipe = models.ForeignKey('recipes.Recipe', on_delete=models.CASCADE,
-                               related_name='shopping_carts',
-                               verbose_name='Рецепт')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='shopping_carts',
+        verbose_name='Пользователь'
+    )
+    recipe = models.ForeignKey(
+        'recipes.Recipe',
+        on_delete=models.CASCADE,
+        related_name='shopping_carts',
+        verbose_name='Рецепт'
+    )
 
     class Meta:
         unique_together = ('user', 'recipe')
@@ -89,12 +97,18 @@ class ShoppingCart(models.Model):
 
 
 class Subscription(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='follower',
-                             verbose_name='Пользователь')
-    author = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='following',
-                               verbose_name='Автор')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='Пользователь'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='Автор'
+    )
 
     class Meta:
         unique_together = ('user', 'author')
