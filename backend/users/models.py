@@ -3,8 +3,8 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 from foodgram_backend.constants import USER_CHARFIELD_LENGTH
-from users.validators import me_validator
 from users.mixins import UserRecipeMixin
+from users.validators import me_validator
 
 
 class User(AbstractUser):

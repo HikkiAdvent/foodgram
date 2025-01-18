@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
 from users import models
 
@@ -23,7 +24,7 @@ class ShoppingListInline(admin.TabularInline):
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(UserAdmin):
     list_display = (
         'username',
         'email',
@@ -32,3 +33,30 @@ class UserAdmin(admin.ModelAdmin):
     )
     inlines = (FollowerInline, FavoriteInline, ShoppingListInline)
     search_fields = ('username', 'email')
+
+
+@admin.register(models.Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = ('recipe',)
+
+
+@admin.register(models.ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+    )
+    search_fields = ('recipe',)
+
+
+@admin.register(models.Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'author'
+    )
+    search_fields = ('user',)
