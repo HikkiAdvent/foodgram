@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib import admin, messages
+from django.contrib import admin
+from django.core.exceptions import ValidationError
 
 from recipes import models
 
@@ -26,6 +27,15 @@ class RecipeAdminForm(forms.ModelForm):
 class RecipeIngredientsInline(admin.TabularInline):
     model = models.RecipeIngredient
     extra = 1
+    fields = ('ingredient', 'amount')
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        for form in formset.forms:
+            form.fields['ingredient'].help_text = (
+                'Необходимо добавить хотя бы один ингредиент'
+            )
+        return formset
 
 
 @admin.register(models.Recipe)
@@ -49,8 +59,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
         super().save_related(request, form, formsets, change)
         if not form.instance.ingredients.exists():
-            messages.error(
-                request,
+            raise ValidationError(
                 'Рецепт должен содержать хотя бы один ингредиент.'
             )
 
