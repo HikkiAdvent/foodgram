@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib import admin
-from django.core.exceptions import ValidationError
+from django.contrib import admin, messages
 
 from recipes import models
 
@@ -50,12 +49,14 @@ class RecipeAdmin(admin.ModelAdmin):
 
         super().save_related(request, form, formsets, change)
         if not form.instance.ingredients.exists():
-            raise ValidationError(
+            messages.error(
+                request,
                 'Рецепт должен содержать хотя бы один ингредиент.'
             )
 
     def get_ingredients(self, obj):
         """Возвращает строку с перечисленными ингредиентами."""
+
         return ', '.join(
             [ingredient.name for ingredient in obj.ingredients.all()]
         )
@@ -74,5 +75,6 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(models.Tag)
 class TagAmin(admin.ModelAdmin):
     """Админка тегов."""
+
     list_display = ('name', 'slug')
     empty_value_display = 'пусто'
