@@ -29,8 +29,6 @@ class RecipeFilter(django_filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         user = self.request.user
-        if not user.is_authenticated:
-            return queryset.none()
         if str(value).lower() in ['1', 'true']:
             return queryset.filter(favorites__user=user)
         else:

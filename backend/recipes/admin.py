@@ -27,7 +27,7 @@ class RecipeAdminForm(forms.ModelForm):
 class RecipeIngredientsInline(admin.TabularInline):
     model = models.RecipeIngredient
     extra = 1
-    fields = ('ingredient', 'amount')
+    fields = ('ingredients', 'amount')
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super().get_formset(request, obj, **kwargs)
