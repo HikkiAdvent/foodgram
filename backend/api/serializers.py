@@ -46,7 +46,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    is_subscribed = serializers.BooleanField(default=False)
+    is_subscribed = serializers.SerializerMethodField()
     avatar = Base64ImageField(required=False)
 
     class Meta:
@@ -54,17 +54,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'email', 'username', 'is_subscribed',
                   'first_name', 'last_name', 'avatar')
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
+    def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            representation['is_subscribed'] = Subscription.objects.filter(
-                user=request.user,
-                author=instance
+            return Subscription.objects.filter(
+                user=request.user, author=obj
             ).exists()
-        else:
-            representation['is_subscribed'] = False
-        return representation
+        return False
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -140,11 +136,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                   'name', 'text',
                   'cooking_time', 'image',
                   'is_favorited', 'is_in_shopping_cart')
-
-    def validate(self, data):
-        self.validate_tags()
-        self.validate_ingredients()
-        return data
 
     def validate_tags(self):
         tags_data = self.context['request'].data.get('tags')

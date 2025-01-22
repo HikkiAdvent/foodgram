@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 
 from recipes import models
+from users.models import Favorite
 
 
 class RecipeAdminForm(forms.ModelForm):
@@ -20,7 +21,7 @@ class RecipeAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields['favorites_count'].initial = (
-                self.instance.get_favorites_count()
+                Favorite.objects.filter(recipe=self.instance).count()
             )
 
 

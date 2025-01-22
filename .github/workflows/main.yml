@@ -139,7 +139,7 @@ jobs:
           sudo docker compose -f docker-compose.production.yml up -d
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --noinput
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_csv_db
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_tags_csv_db
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_users_csv
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_recipes_csv
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_csv_db --csv_file data/ingredients.csv
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_tags_csv_db --csv_file data/tags.csv
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_users_csv --csv_file data/users.csv
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py import_recipes_csv --csv_file data/recipes.csv

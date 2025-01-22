@@ -47,6 +47,12 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_name_unit'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -97,9 +103,6 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
-    def get_favorites_count(self):
-        return self.favorites.count()
-
 
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
@@ -125,6 +128,12 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredients'],
+                name='unique_recipe_ingredients'
+            )
+        ]
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredients.name}'

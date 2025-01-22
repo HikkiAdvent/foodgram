@@ -1,0 +1,11 @@
+username,email,first_name,last_name,password
+john_doe,john.doe@example.com,John,Doe,secretpassword1
+jane_doe,jane.doe@example.com,Jane,Doe,secretpassword2
+Jo_Jo,jojo@example.com,Joseph,Joestar,secretpassword3
+michael_smith,mike.smith@example.com,Michael,Smith,secretpassword4
+susan_jones,susan.jones@example.com,Susan,Jones,secretpassword5
+alice_williams,alice.williams@example.com,Alice,Williams,secretpassword6
+bob_brown,bob.brown@example.com,Bob,Brown,secretpassword7
+charlie_davis,charlie.davis@example.com,Charlie,Davis,secretpassword8
+diana_evans,diana.evans@example.com,Diana,Evans,secretpassword9
+emma_clark,emma.clark@example.com,Emma,Clark,secretpassword10
