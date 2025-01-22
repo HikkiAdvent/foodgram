@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('endpoint, url', [
-    ('users', '/api/auth/users/'),
+    ('users', '/api/users/'),
     ('recipes', '/api/recipes/'),
     ('tags', '/api/tags/'),
     ('ingredients', '/api/ingredients/'),
