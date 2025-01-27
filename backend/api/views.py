@@ -218,8 +218,10 @@ class UserViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = (IsAuthorOrReadOnly,
-                          permissions.IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        IsAuthorOrReadOnly,
+        permissions.IsAuthenticatedOrReadOnly
+    )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
@@ -265,43 +267,57 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, pk=pk)
         short_link, created = ShortLink.objects.get_or_create(recipe=recipe)
         short_url = request.build_absolute_uri(
-            f"/api/recipes/links/{short_link.short_code}/")
+            f'/api/recipes/links/{short_link.short_code}/'
+        )
         return Response({'short-link': short_url}, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         url_path='shopping_cart',
         permission_classes=[permissions.IsAuthenticated]
     )
-    def shopping_cart(self, request, pk=None):
+    def add_to_shopping_cart(self, request, pk=None):
+        """Добавление рецепта в корзину покупок."""
+
         recipe = self.get_object()
         user = request.user
-        if request.method == 'POST':
-            shopping_cart, created = ShoppingCart.objects.get_or_create(
-                user=user, recipe=recipe)
-            if created:
-                shopping_cart_data = {
-                    "id": recipe.id,
-                    "name": recipe.name,
-                    "image": request.build_absolute_uri(recipe.image.url),
-                    "cooking_time": recipe.cooking_time
-                }
-                return Response(shopping_cart_data,
-                                status=status.HTTP_201_CREATED)
-            else:
-                return Response({'detail': 'Рецепт уже в корзине.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        elif request.method == 'DELETE':
-            shopping_cart = ShoppingCart.objects.filter(
-                user=user, recipe=recipe)
-            if shopping_cart.exists():
-                shopping_cart.delete()
-                return Response({'detail': 'Рецепт удален из корзины.'},
-                                status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response({'detail': 'Рецепт не найден в корзине.'},
-                                status=status.HTTP_400_BAD_REQUEST)
+        shopping_cart, created = ShoppingCart.objects.get_or_create(
+            user=user,
+            recipe=recipe
+        )
+        if created:
+            return Response(
+                {
+                    'id': recipe.id,
+                    'name': recipe.name,
+                    'image': request.build_absolute_uri(recipe.image.url),
+                    'cooking_time': recipe.cooking_time
+                },
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'detail': 'Рецепт уже в корзине.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @add_to_shopping_cart.mapping.delete
+    def remove_from_shopping_cart(self, request, pk=None):
+        """Удаление рецепта из корзины покупок."""
+
+        recipe = self.get_object()
+        user = request.user
+        shopping_cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
+        if shopping_cart.exists():
+            shopping_cart.delete()
+            return Response(
+                {'detail': 'Рецепт удален из корзины.'},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        return Response(
+            {'detail': 'Рецепт не найден в корзине.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         detail=False,
@@ -323,47 +339,69 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     ingredients_dict[key] += ri.amount
                 else:
                     ingredients_dict[key] = ri.amount
-        ingredients_text = "Список покупок:\n\n"
+        ingredients_text = 'Список покупок:\n\n'
         for ingredient, amount in ingredients_dict.items():
-            ingredients_text += f"{ingredient} - {amount}\n"
-        response = HttpResponse(ingredients_text, content_type='text/plain')
-        response['Content-Disposition'
-                 ] = 'attachment; filename="shopping_cart.txt"'
+            ingredients_text += f'{ingredient} - {amount}\n'
+        response = HttpResponse(
+            ingredients_text,
+            content_type='text/plain'
+        )
+        response[
+            'Content-Disposition'
+        ] = 'attachment; filename="shopping_cart.txt"'
         return response
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         url_path='favorite',
         permission_classes=[permissions.IsAuthenticated]
     )
-    def favorite(self, request, pk=None):
+    def add_to_favorite(self, request, pk=None):
+        """Добавление рецепта в избранное."""
+
         recipe = self.get_object()
         user = request.user
-        if request.method == 'POST':
-            favorite, created = Favorite.objects.get_or_create(
-                user=user, recipe=recipe)
-            if created:
-                favorite_recipe_data = {
-                    "id": recipe.id,
-                    "name": recipe.name,
-                    "image": request.build_absolute_uri(recipe.image.url),
-                    "cooking_time": recipe.cooking_time
-                }
-                return Response(favorite_recipe_data,
-                                status=status.HTTP_201_CREATED)
-            else:
-                return Response({'detail': 'Рецепт уже в избранном.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        elif request.method == 'DELETE':
-            favorite = Favorite.objects.filter(user=user, recipe=recipe)
-            if favorite.exists():
-                favorite.delete()
-                return Response({'detail': 'Рецепт удален из избранного.'},
-                                status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response({'detail': 'Рецепт не найден в избранном.'},
-                                status=status.HTTP_400_BAD_REQUEST)
+        favorite, created = Favorite.objects.get_or_create(
+            user=user,
+            recipe=recipe
+        )
+        if created:
+            favorite_recipe_data = {
+                'id': recipe.id,
+                'name': recipe.name,
+                'image': request.build_absolute_uri(recipe.image.url),
+                'cooking_time': recipe.cooking_time
+            }
+            return Response(
+                favorite_recipe_data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'detail': 'Рецепт уже в избранном.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    @add_to_favorite.mapping.delete
+    def remove_from_favorite(self, request, pk=None):
+        """Удаление рецепта из избранного."""
+
+        recipe = self.get_object()
+        user = request.user
+        favorite = Favorite.objects.filter(
+            user=user,
+            recipe=recipe
+        )
+        if favorite.exists():
+            favorite.delete()
+            return Response(
+                {'detail': 'Рецепт удален из избранного.'},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        return Response(
+            {'detail': 'Рецепт не найден в избранном.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

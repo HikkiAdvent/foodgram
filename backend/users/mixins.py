@@ -17,6 +17,12 @@ class UserRecipeMixin(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe_%(class)s'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user.username} - {self.recipe.name}'

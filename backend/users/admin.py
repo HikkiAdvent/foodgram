@@ -34,6 +34,13 @@ class UserAdmin(UserAdmin):
     inlines = (FollowerInline, FavoriteInline, ShoppingListInline)
     search_fields = ('username', 'email')
 
+    def get_inline_instances(self, request, obj=None):
+        """Показывать инлайны только при редактировании."""
+
+        if not obj:
+            return []
+        return super().get_inline_instances(request, obj)
+
 
 @admin.register(models.Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
@@ -60,3 +67,13 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'author'
     )
     search_fields = ('user',)
+
+    def save_model(self, request, obj, form, change):
+        if obj.user == obj.author:
+            self.message_user(
+                request,
+                "Нельзя подписаться на самого себя!",
+                level="error"
+            )
+            return
+        super().save_model(request, obj, form, change)

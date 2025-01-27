@@ -18,14 +18,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError(
-                "Электронная почта уже существует."
+                'Электронная почта уже существует.'
             )
         return value
 
     def validate_username(self, value):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
-                "Имя пользователя уже существует."
+                'Имя пользователя уже существует.'
             )
         return value
 

@@ -24,8 +24,10 @@ class User(AbstractUser):
         validators=[
             RegexValidator(
                 regex=r'^[\w.@+-]+$',
-                message='''Введите корректный юзернейм.
-                Разрешены буквы, цифры и символы: @ . + - _''',
+                message=(
+                    'Введите корректный юзернейм. '
+                    'Разрешены буквы, цифры и символы: @ . + - _'
+                )
             ),
             me_validator
         ],
@@ -34,7 +36,6 @@ class User(AbstractUser):
             'blank': 'Это поле обязательно для заполнения.',
         }
     )
-
     first_name = models.CharField(
         'Имя',
         max_length=USER_CHARFIELD_LENGTH,
@@ -55,29 +56,20 @@ class User(AbstractUser):
         verbose_name = 'пользователь'
         verbose_name_plural = 'Пользователи'
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
+
 
 class Favorite(UserRecipeMixin):
     class Meta(UserRecipeMixin.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_user_recipe_favorite'
-            )
-        ]
 
 
 class ShoppingCart(UserRecipeMixin):
     class Meta(UserRecipeMixin.Meta):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_user_recipe_shopping_cart'
-            )
-        ]
 
 
 class Subscription(models.Model):
@@ -95,7 +87,16 @@ class Subscription(models.Model):
     )
 
     class Meta:
-        unique_together = ('user', 'author')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_user_author_%(class)s'
+            ),
+            models.CheckConstraint(
+                check=~models.Q(user=models.F('author')),
+                name='prevent_self_subscription'
+            )
+        ]
         verbose_name = 'подписка'
         verbose_name_plural = 'Подписки'
 

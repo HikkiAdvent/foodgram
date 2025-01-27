@@ -1,44 +1,24 @@
-from django import forms
 from django.contrib import admin
-from django.core.exceptions import ValidationError
 
 from recipes import models
 from users.models import Favorite
 
 
-class RecipeAdminForm(forms.ModelForm):
-    favorites_count = forms.IntegerField(
-        label='Добавления в избранное',
-        required=False,
-        widget=forms.TextInput(attrs={'readonly': 'readonly'})
-    )
-
-    class Meta:
-        model = models.Recipe
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.pk:
-            self.fields['favorites_count'].initial = (
-                Favorite.objects.filter(recipe=self.instance).count()
-            )
-
-
 class RecipeIngredientsInline(admin.TabularInline):
     model = models.RecipeIngredient
     extra = 1
+    min_num = 1
 
 
 @admin.register(models.Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     """Админка рецептов."""
 
-    form = RecipeAdminForm
     list_display = (
         'name',
         'author',
-        'get_ingredients'
+        'get_ingredients',
+        'get_favorites_count',
     )
     inlines = (RecipeIngredientsInline,)
     search_fields = ('name', 'author')
@@ -46,14 +26,12 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('tags',)
     filter_horizontal = ('tags',)
 
-    def save_related(self, request, form, formsets, change):
-        """Проверяем, что рецепт содержит хотя бы один ингредиент."""
+    def get_favorites_count(self, obj):
+        """Возвращает количество добавлений в избранное."""
 
-        super().save_related(request, form, formsets, change)
-        if not form.instance.ingredients.exists():
-            raise ValidationError(
-                'Рецепт должен содержать хотя бы один ингредиент.'
-            )
+        return Favorite.objects.filter(recipe=obj).count()
+
+    get_favorites_count.short_description = 'В избранном'
 
     def get_ingredients(self, obj):
         """Возвращает строку с перечисленными ингредиентами."""
