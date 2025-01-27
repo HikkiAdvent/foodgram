@@ -37,7 +37,7 @@ class RecipeFilter(django_filters.FilterSet):
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
-        if value:
+        if value and user.is_authenticated:
             shopping_cart_recipes = ShoppingCart.objects.filter(
                 user=user
             ).values_list('recipe', flat=True)
