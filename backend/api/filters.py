@@ -31,19 +31,15 @@ class RecipeFilter(django_filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         user = self.request.user
-        if not user.is_authenticated:
-            return queryset
-        if value:
+        if value and user.is_authenticated:
             return queryset.filter(favorites__user=user)
-        return queryset.exclude(favorites__user=user)
+        return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
-        if not user.is_authenticated:
-            return queryset
-        shopping_cart_recipes = ShoppingCart.objects.filter(
-            user=user
-        ).values_list('recipe', flat=True)
         if value:
+            shopping_cart_recipes = ShoppingCart.objects.filter(
+                user=user
+            ).values_list('recipe', flat=True)
             return queryset.filter(id__in=shopping_cart_recipes)
-        return queryset.exclude(id__in=shopping_cart_recipes)
+        return queryset

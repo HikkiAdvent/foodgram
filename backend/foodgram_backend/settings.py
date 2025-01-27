@@ -132,4 +132,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = '/backend_static/static/'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media/'
+if os.getenv('DB_ENGINE') == 'django.db.backends.postgresql':
+    MEDIA_ROOT = '/app/media/'
+else:
+    MEDIA_ROOT = BASE_DIR / 'media/'

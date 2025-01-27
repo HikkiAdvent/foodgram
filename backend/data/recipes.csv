@@ -1,7 +1,7 @@
 author,name,image,text,ingredients,tags,cooking_time
 john_doe,Spaghetti Bolognese,1.jpg,Спагетти с болоньезе,1;2;3,1;2,45
 john_doe,Carbonara,1.jpg,Карбонара,28;29;30,0;3,25
-john_doe,Fettuccine Alfredo,1.jpg,Фетуччине альфредо,1;2;0,40
+john_doe,Fettuccine Alfredo,1.jpg,Фетуччине альфредо,1;2,0,40
 john_doe,Linguine with Clams,1.jpg,Лингвини с моллюсками,3;1,2;3,50
 jane_doe,Chicken Salad,1.jpg,Салат с курицей,4;5,0;3,30
 jane_doe,Grilled Salmon,1.jpg,Гриль с лососем,31;32;33,1;2,35
