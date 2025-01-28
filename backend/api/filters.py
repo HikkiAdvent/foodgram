@@ -18,10 +18,10 @@ class RecipeFilter(django_filters.FilterSet):
         queryset=Tag.objects.all(),
         to_field_name='slug',
     )
-    is_in_shopping_cart = django_filters.BooleanFilter(
+    is_in_shopping_cart = django_filters.CharFilter(
         method='filter_is_in_shopping_cart'
     )
-    is_favorited = django_filters.BooleanFilter(
+    is_favorited = django_filters.CharFilter(
         method='filter_is_favorited'
     )
 
