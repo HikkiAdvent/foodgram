@@ -31,13 +31,13 @@ class RecipeFilter(django_filters.FilterSet):
 
     def filter_is_favorited(self, queryset, name, value):
         user = self.request.user
-        if value == '1' and user.is_authenticated:
+        if str(value) == '1' and user.is_authenticated:
             return queryset.filter(favorites__user=user)
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
-        if value == '1' and user.is_authenticated:
+        if str(value) == '1' and user.is_authenticated:
             shopping_cart_recipes = ShoppingCart.objects.filter(
                 user=user
             ).values_list('recipe', flat=True)

@@ -143,10 +143,10 @@ class UserViewSet(viewsets.ModelViewSet):
             recipes = recipes[:recipes_limit]
         recipes_data = [
             {
-                "id": recipe.id,
-                "name": recipe.name,
-                "image": self.request.build_absolute_uri(recipe.image.url),
-                "cooking_time": recipe.cooking_time
+                'id': recipe.id,
+                'name': recipe.name,
+                'image': self.request.build_absolute_uri(recipe.image.url),
+                'cooking_time': recipe.cooking_time
             }
             for recipe in recipes
         ]
@@ -156,16 +156,16 @@ class UserViewSet(viewsets.ModelViewSet):
             response_status = status.HTTP_204_NO_CONTENT
 
         return Response({
-            "email": author.email,
-            "id": author.id,
-            "username": author.username,
-            "first_name": author.first_name,
-            "last_name": author.last_name,
-            "is_subscribed": Subscription.objects.filter(
+            'email': author.email,
+            'id': author.id,
+            'username': author.username,
+            'first_name': author.first_name,
+            'last_name': author.last_name,
+            'is_subscribed': Subscription.objects.filter(
                 user=self.request.user, author=author).exists(),
-            "recipes": recipes_data,
-            "recipes_count": recipes.count(),
-            "avatar": self.request.build_absolute_uri(
+            'recipes': recipes_data,
+            'recipes_count': recipes.count(),
+            'avatar': self.request.build_absolute_uri(
                 author.avatar.url) if author.avatar else None
         }, status=response_status)
 
