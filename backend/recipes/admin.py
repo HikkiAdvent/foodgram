@@ -26,20 +26,19 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('tags',)
     filter_horizontal = ('tags',)
 
+    @admin.display(description='В избранном')
     def get_favorites_count(self, obj):
         """Возвращает количество добавлений в избранное."""
 
         return Favorite.objects.filter(recipe=obj).count()
 
-    get_favorites_count.short_description = 'В избранном'
-
+    @admin.display(description='Ингредиенты')
     def get_ingredients(self, obj):
         """Возвращает строку с перечисленными ингредиентами."""
 
         return ', '.join(
             [ingredient.name for ingredient in obj.ingredients.all()]
         )
-    get_ingredients.short_description = 'Ингредиенты'
 
 
 @admin.register(models.Ingredient)

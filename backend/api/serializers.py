@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -26,6 +25,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if User.objects.filter(username=value).exists():
             raise serializers.ValidationError(
                 'Имя пользователя уже существует.'
+            )
+        if value.lower() == 'me':
+            raise serializers.ValidationError(
+                f'Никней не может быть {value}'
             )
         return value
 
@@ -55,12 +58,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   'first_name', 'last_name', 'avatar')
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=request.user, author=obj
-            ).exists()
-        return False
+        return Subscription.objects.filter(
+            user=self.context.get('request').user,
+            author=obj
+        ).exists()
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -193,18 +194,16 @@ class RecipeSerializer(serializers.ModelSerializer):
                 )
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return Favorite.objects.filter(
-                user=request.user, recipe=obj).exists()
-        return False
+        return Favorite.objects.filter(
+            user=self.context.get('request').user,
+            recipe=obj
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return ShoppingCart.objects.filter(
-                user=request.user, recipe=obj).exists()
-        return False
+        return ShoppingCart.objects.filter(
+            user=self.context.get('request').user,
+            recipe=obj
+        ).exists()
 
 
 class SetPasswordSerializer(serializers.Serializer):

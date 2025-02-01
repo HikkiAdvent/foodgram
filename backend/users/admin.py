@@ -35,7 +35,7 @@ class UserAdmin(UserAdmin):
     search_fields = ('username', 'email')
 
     def get_inline_instances(self, request, obj=None):
-        """Показывать инлайны только при редактировании."""
+        """Показывает инлайны только при редактировании."""
 
         if not obj:
             return []
