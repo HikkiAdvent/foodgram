@@ -21,19 +21,13 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserRegistrationSerializer
+    queryset = User.objects.all().order_by('id')
     permission_classes = [permissions.AllowAny]
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = UserListSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = UserListSerializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return UserListSerializer
+        return UserRegistrationSerializer
 
     def create(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
