@@ -195,7 +195,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'get'],
+        methods=['get'],
         url_path='get-link'
     )
     def create_short_link(self, request, pk=None):
