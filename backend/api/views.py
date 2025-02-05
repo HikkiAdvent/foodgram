@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, serializers, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -13,7 +13,7 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
     AvatarSerializer, IngredientSerializer,
-    RecipeSerializer, SetPasswordSerializer,
+    RecipeRequestSerializer, RecipeResponseSerializer, SetPasswordSerializer,
     TagSerializer, UserListSerializer,
     UserProfileSerializer, UserRegistrationSerializer,
     SubscribeSerializer
@@ -144,7 +144,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = (
         IsAuthorOrReadOnly,
         permissions.IsAuthenticatedOrReadOnly
@@ -152,38 +151,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
-    def perform_create(self, serializer):
-        recipe = serializer.save(author=self.request.user)
-        tags_data = self.request.data.get('tags', [])
-        for tag_id in tags_data:
-            tag = get_object_or_404(Tag, id=tag_id)
-            recipe.tags.add(tag)
-        ingredients_data = self.request.data.get('ingredients', [])
-        for ingredient in ingredients_data:
-            ingredient_id = ingredient.get('id')
-            amount = ingredient.get('amount')
-            if ingredient_id is not None and amount is not None:
-                try:
-                    amount = int(amount)
-                except ValueError:
-                    raise serializers.ValidationError(
-                        'Количество должно быть целым числом'
-                    )
-
-                if amount < 1:
-                    raise serializers.ValidationError(
-                        'Количество ингредиентов не может быть меньше 1'
-                    )
-
-                current_ingredient = get_object_or_404(
-                    Ingredient,
-                    id=ingredient_id
-                )
-                RecipeIngredient.objects.create(
-                    ingredients=current_ingredient,
-                    recipe=recipe,
-                    amount=amount
-                )
+    def get_serializer_class(self):
+        if self.action in ('create', 'update'):
+            return RecipeRequestSerializer
+        return RecipeResponseSerializer
 
     @action(
         detail=True,

@@ -124,49 +124,102 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         return value
 
 
-class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = RecipeIngredientSerializer(read_only=True, many=True,
-                                             source='recipe_ingredients')
-    tags = TagSerializer(read_only=True, many=True)
+class RecipeIngredientRequestSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
+
+
+class RecipeRequestSerializer(serializers.ModelSerializer):
+    ingredients = RecipeIngredientRequestSerializer(
+        many=True,
+    )
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True
+    )
     image = Base64ImageField()
     author = UserProfileSerializer(read_only=True)
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'tags',
                   'ingredients', 'author',
                   'name', 'text',
-                  'cooking_time', 'image',
-                  'is_favorited', 'is_in_shopping_cart')
+                  'cooking_time', 'image',)
 
-    def validate_tags(self):
-        tags_data = self.context['request'].data.get('tags')
-        if not tags_data or not isinstance(tags_data, list):
+    def create(self, validated_data):
+        tags_data = validated_data.pop('tags')
+        ingredients_data = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(
+            author=self.context['request'].user,
+            **validated_data
+        )
+        recipe.tags.set(tags_data)
+        self.add_ingredients_to_recipe(recipe, ingredients_data)
+        return recipe
+
+    def update(self, instance, validated_data):
+        """Обновление рецепта."""
+        tags_data = validated_data.pop('tags', [])
+        ingredients_data = validated_data.pop('ingredients', [])
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time',
+            instance.cooking_time
+        )
+        instance.image = validated_data.get('image', instance.image)
+        if tags_data:
+            instance.tags.set(tags_data)
+        if ingredients_data:
+            self.add_ingredients_to_recipe(instance, ingredients_data)
+        instance.save()
+        return instance
+
+    def add_ingredients_to_recipe(self, recipe, ingredients_data):
+        """Добавляет или обновляет ингредиенты для рецепта."""
+        ingredient_ids = [ingredient['id'] for ingredient in ingredients_data]
+        ingredients = Ingredient.objects.filter(id__in=ingredient_ids)
+        ingredient_dict = (
+            {ingredient.id: ingredient for ingredient in ingredients}
+        )
+        recipe.ingredients.clear()
+        recipe_ingredients = [
+            RecipeIngredient(
+                recipe=recipe,
+                ingredients=ingredient_dict[ingredient_data['id']],
+                amount=ingredient_data['amount']
+            )
+            for ingredient_data in ingredients_data
+            if ingredient_data['id'] in ingredient_dict
+        ]
+        RecipeIngredient.objects.bulk_create(recipe_ingredients)
+
+    def validate_tags(self, value):
+        if not value or not isinstance(value, list):
             raise serializers.ValidationError(
                 {'tags': 'Поле tags не может быть пустым'})
-        if len(tags_data) != len(set(tags_data)):
+        if len(value) != len(set(value)):
             raise serializers.ValidationError(
                 {'tags': 'Теги не могут повторяться'})
-        invalid_tags = [tag_id for tag_id in tags_data
-                        if not Tag.objects.filter(id=tag_id).exists()]
+        invalid_tags = [tag_id for tag_id in value
+                        if not Tag.objects.filter(id=tag_id.id).exists()]
         if invalid_tags:
             invalid_tags_str = ', '.join(map(str, invalid_tags))
             raise serializers.ValidationError(
                 {'tags': f'Теги с id {invalid_tags_str} не существуют'})
+        return value
 
-    def validate_ingredients(self):
-        ingredients_data = self.context['request'].data.get('ingredients')
-        if ingredients_data is None:
+    def validate_ingredients(self, value):
+        if value is None:
             raise serializers.ValidationError(
                 {'ingredients': 'Поле ingredients отсутствует'})
-        if not isinstance(ingredients_data, list) or not ingredients_data:
+        if not isinstance(value, list) or not value:
             raise serializers.ValidationError(
                 {'ingredients': 'Поле ingredients не может быть пустым'})
 
         ingredient_ids = set()
-        for ingredient in ingredients_data:
+        for ingredient in value:
             ingredient_id = ingredient.get('id')
             amount = ingredient.get('amount')
             try:
@@ -195,6 +248,31 @@ class RecipeSerializer(serializers.ModelSerializer):
                     {'ingredients':
                      f'Ингредиент с id {ingredient_id} не найден'}
                 )
+            return value
+
+    def to_representation(self, instance):
+        return (
+            RecipeResponseSerializer(context=self.context)
+            .to_representation(instance)
+        )
+
+
+class RecipeResponseSerializer(serializers.ModelSerializer):
+    ingredients = RecipeIngredientSerializer(read_only=True, many=True,
+                                             source='recipe_ingredients')
+    tags = TagSerializer(read_only=True, many=True)
+    image = Base64ImageField()
+    author = UserProfileSerializer(read_only=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'tags',
+                  'ingredients', 'author',
+                  'name', 'text',
+                  'cooking_time', 'image',
+                  'is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
