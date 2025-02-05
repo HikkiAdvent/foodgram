@@ -23,7 +23,7 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('id')
+    queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
 
     def get_serializer_class(self):
@@ -52,10 +52,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def set_password(self, request):
         serializer = SetPasswordSerializer(
             data=request.data, context={'request': request})
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(status=204)
-        return Response(serializer.errors, status=400)
 
     @action(
         detail=False,
@@ -65,9 +64,8 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def upload_avatar(self, request):
         """Обновление аватара пользователя."""
-
         serializer = AvatarSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             user = request.user
             user.avatar = serializer.validated_data['avatar']
             user.save()
@@ -75,13 +73,10 @@ class UserViewSet(viewsets.ModelViewSet):
                 user.avatar.url) if user.avatar else None
             return Response({"avatar": avatar_url},
                             status=status.HTTP_200_OK)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
 
     @upload_avatar.mapping.delete
     def delete_avatar(self, request):
         """Удаление аватара пользователя."""
-
         user = request.user
         if user.avatar:
             user.avatar.delete(save=False)
@@ -100,22 +95,19 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def add_subscription(self, request, pk=None):
         """Добавление подписки на пользователя"""
-
         serializer = SubscribeSerializer(
             data=request.data,
         )
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             subscription = serializer.save()
             return Response(
                 SubscribeSerializer(subscription.author).data,
                 status=status.HTTP_201_CREATED
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @add_subscription.mapping.delete
     def remove_subscription(self, request, pk=None):
         """Удаление подписки от пользователя"""
-
         author = self.get_object()
         user = request.user
         subscription = Subscription.objects.filter(
@@ -214,7 +206,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def add_to_shopping_cart(self, request, pk=None):
         """Добавление рецепта в корзину покупок."""
-
         recipe = self.get_object()
         user = request.user
         shopping_cart, created = ShoppingCart.objects.get_or_create(
@@ -239,7 +230,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @add_to_shopping_cart.mapping.delete
     def remove_from_shopping_cart(self, request, pk=None):
         """Удаление рецепта из корзины покупок."""
-
         recipe = self.get_object()
         user = request.user
         shopping_cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
@@ -274,7 +264,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_ingredients_data(self, shopping_cart_items):
         """Получить данные об ингредиентах из корзины."""
-
         return (
             RecipeIngredient.objects
             .filter(recipe__in=[item.recipe for item in shopping_cart_items])
@@ -285,7 +274,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def generate_ingredients_text(self, ingredients_data):
         """Генерация текстового списка покупок из данных ингредиентов."""
-
         ingredients_text = 'Список покупок:\n\n'
         for ingredient in ingredients_data:
             ingredient_name = ingredient['ingredient__name']
@@ -304,7 +292,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def add_to_favorite(self, request, pk=None):
         """Добавление рецепта в избранное."""
-
         recipe = self.get_object()
         user = request.user
         favorite, created = Favorite.objects.get_or_create(
@@ -330,7 +317,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @add_to_favorite.mapping.delete
     def remove_from_favorite(self, request, pk=None):
         """Удаление рецепта из избранного."""
-
         recipe = self.get_object()
         user = request.user
         favorite = Favorite.objects.filter(
