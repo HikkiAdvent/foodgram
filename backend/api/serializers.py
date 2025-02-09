@@ -322,15 +322,13 @@ class SubscribeSerializer(UserProfileSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(UserProfileSerializer.Meta):
-        fields = ('id', 'email', 'username', 'is_subscribed',
-                  'first_name', 'last_name', 'avatar', 'recipes',
-                  'recipes_count')
+        fields = (
+            UserProfileSerializer.Meta.fields + ('recipes', 'recipes_count')
+        )
         read_only_fields = fields
 
     def get_recipes_count(self, obj):
         """Получить количество рецептов пользователя."""
-        print('Вызван метод get_recipes_count')
-        print(f'{obj =}')
         return obj.recipes.count()
 
     def get_recipes(self, obj):
@@ -342,8 +340,6 @@ class SubscribeSerializer(UserProfileSerializer):
                 recipes_limit = int(recipes_limit)
             except ValueError:
                 recipes_limit = None
-        print('Вызван метод get_recipes')
-        print(f'{obj =}')
         recipes = obj.recipes.all()
         if recipes_limit:
             recipes = recipes[:recipes_limit]
