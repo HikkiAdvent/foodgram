@@ -33,7 +33,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'subscriptions':
             return SubscribeSerializer
         return UserRegistrationSerializer
-    
+
     def get_queryset(self):
         if self.action == 'subscriptions':
             user = self.request.user
