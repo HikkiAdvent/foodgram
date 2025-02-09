@@ -311,7 +311,7 @@ class SetPasswordSerializer(serializers.Serializer):
         user.save()
 
 
-class RecipeSubscribeSerializer(serializers.ModelSerializer):
+class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
@@ -333,7 +333,6 @@ class SubscribeSerializer(UserProfileSerializer):
 
     def get_recipes(self, obj):
         """Получить рецепты пользователя с учетом лимита."""
-        print(self.context)
         request = self.context['request']
         recipes_limit = request.query_params.get('recipes_limit')
         if recipes_limit is not None:
@@ -344,7 +343,13 @@ class SubscribeSerializer(UserProfileSerializer):
         recipes = obj.recipes.all()
         if recipes_limit:
             recipes = recipes[:recipes_limit]
-        return RecipeSubscribeSerializer(recipes, many=True).data
+        return (
+            ShortRecipeSerializer(
+                recipes,
+                many=True,
+                context=self.context
+            ).data
+        )
 
     def validate(self, data):
         user = self.context['request'].user
@@ -369,3 +374,28 @@ class SubscribeSerializer(UserProfileSerializer):
         author = User.objects.get(id=int(self.context['pk']))
         subscription = Subscription.objects.create(user=user, author=author)
         return subscription.author
+
+
+class ShoppingCartSerializer(ShortRecipeSerializer):
+    class Meta(ShortRecipeSerializer.Meta):
+        read_only_fields = ShortRecipeSerializer.Meta.fields
+
+    def validate(self, data):
+        user = self.context['request'].user
+        recipe_id = self.context['pk']
+        if ShoppingCart.objects.filter(
+            user=user,
+            recipe_id=recipe_id
+        ).exists():
+            raise serializers.ValidationError(
+                {'recipe_id': 'Рецепт уже добавлен в корзину.'}
+            )
+        return data
+
+    def create(self, validated_data):
+        recipe = Recipe.objects.get(id=self.context['pk'])
+        ShoppingCart.objects.create(
+            user=self.context['request'].user,
+            recipe=recipe
+        )
+        return recipe

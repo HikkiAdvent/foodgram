@@ -16,7 +16,7 @@ from api.serializers import (
     RecipeRequestSerializer, RecipeResponseSerializer, SetPasswordSerializer,
     TagSerializer, UserListSerializer,
     UserProfileSerializer, UserRegistrationSerializer,
-    SubscribeSerializer
+    SubscribeSerializer, ShoppingCartSerializer
 )
 
 User = get_user_model()
@@ -184,26 +184,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def add_to_shopping_cart(self, request, pk=None):
         """Добавление рецепта в корзину покупок."""
-        recipe = self.get_object()
-        user = request.user
-        shopping_cart, created = ShoppingCart.objects.get_or_create(
-            user=user,
-            recipe=recipe
+        serializer = ShoppingCartSerializer(
+            data=request.data,
+            context={
+                'request': request,
+                'pk': pk
+            }
         )
-        if created:
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
             return Response(
-                {
-                    'id': recipe.id,
-                    'name': recipe.name,
-                    'image': request.build_absolute_uri(recipe.image.url),
-                    'cooking_time': recipe.cooking_time
-                },
+                serializer.data,
                 status=status.HTTP_201_CREATED
             )
-        return Response(
-            {'detail': 'Рецепт уже в корзине.'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
 
     @add_to_shopping_cart.mapping.delete
     def remove_from_shopping_cart(self, request, pk=None):
