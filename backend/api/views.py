@@ -23,7 +23,6 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
 
     def get_serializer_class(self):
@@ -31,7 +30,15 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserListSerializer
         if self.action in ('retrieve', 'me'):
             return UserProfileSerializer
+        if self.action == 'subscriptions':
+            return SubscribeSerializer
         return UserRegistrationSerializer
+    
+    def get_queryset(self):
+        if self.action == 'subscriptions':
+            user = self.request.user
+            return User.objects.filter(following__user=user)
+        return User.objects.all()
 
     @action(
         detail=False,
@@ -136,17 +143,7 @@ class UserViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def subscriptions(self, request):
-        user = request.user
-        subscriptions = (
-            User.objects.filter(following__user=user)
-        )
-        page = self.paginate_queryset(subscriptions)
-        serializer = SubscribeSerializer(
-            page,
-            many=True,
-            context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
+        return self.list(request)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
