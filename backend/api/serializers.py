@@ -289,7 +289,8 @@ class RecipeResponseSerializer(serializers.ModelSerializer):
         if request.user.is_authenticated:
             return ShoppingCart.objects.filter(
                 user=request.user,
-                recipe=obj).exists()
+                recipe=obj
+            ).exists()
         return False
 
 
@@ -374,28 +375,3 @@ class SubscribeSerializer(UserProfileSerializer):
         author = User.objects.get(id=int(self.context['pk']))
         subscription = Subscription.objects.create(user=user, author=author)
         return subscription.author
-
-
-class ShoppingCartSerializer(ShortRecipeSerializer):
-    class Meta(ShortRecipeSerializer.Meta):
-        read_only_fields = ShortRecipeSerializer.Meta.fields
-
-    def validate(self, data):
-        user = self.context['request'].user
-        recipe_id = self.context['pk']
-        if ShoppingCart.objects.filter(
-            user=user,
-            recipe_id=recipe_id
-        ).exists():
-            raise serializers.ValidationError(
-                {'recipe_id': 'Рецепт уже добавлен в корзину.'}
-            )
-        return data
-
-    def create(self, validated_data):
-        recipe = Recipe.objects.get(id=self.context['pk'])
-        ShoppingCart.objects.create(
-            user=self.context['request'].user,
-            recipe=recipe
-        )
-        return recipe
