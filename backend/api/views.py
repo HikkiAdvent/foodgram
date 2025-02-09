@@ -138,11 +138,13 @@ class UserViewSet(viewsets.ModelViewSet):
     def subscriptions(self, request):
         user = request.user
         subscriptions = (
-            Subscription.objects.filter(user=user).select_related('author')
+            User.objects.filter(following__user=user)
         )
+        page = self.paginate_queryset(subscriptions)
         serializer = SubscribeSerializer(
-            subscriptions,
+            page,
             many=True,
+            context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 

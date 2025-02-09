@@ -333,6 +333,7 @@ class SubscribeSerializer(UserProfileSerializer):
 
     def get_recipes(self, obj):
         """Получить рецепты пользователя с учетом лимита."""
+        print(self.context)
         request = self.context['request']
         recipes_limit = request.query_params.get('recipes_limit')
         if recipes_limit is not None:
