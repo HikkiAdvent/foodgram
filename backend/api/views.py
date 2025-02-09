@@ -40,8 +40,9 @@ class UserViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def me(self, request):
-        self.get_object = self.get_instance
-        return self.retrieve(request)
+        user = request.user
+        serializer = self.get_serializer_class()(user)
+        return Response(serializer.data)
 
     @action(
         detail=False,
@@ -97,11 +98,15 @@ class UserViewSet(viewsets.ModelViewSet):
         """Добавление подписки на пользователя"""
         serializer = SubscribeSerializer(
             data=request.data,
+            context={
+                'request': request,
+                'pk': pk
+            }
         )
         if serializer.is_valid(raise_exception=True):
-            subscription = serializer.save()
+            serializer.save()
             return Response(
-                SubscribeSerializer(subscription.author).data,
+                serializer.data,
                 status=status.HTTP_201_CREATED
             )
 

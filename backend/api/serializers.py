@@ -59,11 +59,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request.user.is_authenticated:
-            return Subscription.objects.filter(
-                user=self.context.get('request').user,
-                author=obj
-            ).exists()
+        if request:
+            if request.user.is_authenticated:
+                return Subscription.objects.filter(
+                    user=request.user,
+                    author=obj
+                ).exists()
         return False
 
 
@@ -310,64 +311,64 @@ class SetPasswordSerializer(serializers.Serializer):
         user.save()
 
 
-class RecipeSubscribeSerializer(serializers.Serializer):
+class RecipeSubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class SubscribeSerializer(UserProfileSerializer):
-    recipes = RecipeSubscribeSerializer(many=True)
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(UserProfileSerializer.Meta):
-        model = User
-        fields = (
-            UserProfileSerializer.Meta.fields
-            + ('recipes', 'recipes_count')
-        )
+        fields = ('id', 'email', 'username', 'is_subscribed',
+                  'first_name', 'last_name', 'avatar', 'recipes',
+                  'recipes_count')
+        read_only_fields = fields
 
     def get_recipes_count(self, obj):
         """Получить количество рецептов пользователя."""
+        print('Вызван метод get_recipes_count')
+        print(f'{obj =}')
         return obj.recipes.count()
 
+    def get_recipes(self, obj):
+        """Получить рецепты пользователя с учетом лимита."""
+        request = self.context['request']
+        recipes_limit = request.query_params.get('recipes_limit')
+        if recipes_limit is not None:
+            try:
+                recipes_limit = int(recipes_limit)
+            except ValueError:
+                recipes_limit = None
+        print('Вызван метод get_recipes')
+        print(f'{obj =}')
+        recipes = obj.recipes.all()
+        if recipes_limit:
+            recipes = recipes[:recipes_limit]
+        return RecipeSubscribeSerializer(recipes, many=True).data
+
     def validate(self, data):
-        """Проверка, не подписан ли пользователь на самого себя."""
         user = self.context['request'].user
-        author = self.instance
-        if user.id == author.id:
+        author_id = int(self.context['pk'])
+        try:
+            author_user = User.objects.get(id=author_id)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Такого автора нет.')
+        if user.id == author_id:
             raise serializers.ValidationError(
                 'Вы не можете подписаться на себя.'
             )
-        if not User.objects.filter(id=author.id).exists():
-            raise serializers.ValidationError('Такого автора нет.')
-        if Subscription.objects.filter(user=user, author=author).exists():
+        if Subscription.objects.filter(
+            user=user,
+            author=author_user
+        ).exists():
             raise serializers.ValidationError('Вы уже подписаны на автора.')
         return data
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        recipes_limit = (
-            self.context.get('request')
-            .query_params.get('recipes_limit', None)
-        )
-        recipes_limit = (
-            int(recipes_limit)
-            if recipes_limit is not None else None
-        )
-        if recipes_limit:
-            recipes = instance.recipes.all()[:recipes_limit]
-        else:
-            recipes = instance.recipes.all()
-        representation['recipes'] = RecipeSubscribeSerializer(
-            recipes,
-            many=True
-        ).data
-        return representation
-
     def create(self, validated_data):
-        """Переопределение метода для создания подписки"""
         user = self.context['request'].user
-        author = validated_data.get('author')
+        author = User.objects.get(id=int(self.context['pk']))
         subscription = Subscription.objects.create(user=user, author=author)
-        return subscription
+        return subscription.author
