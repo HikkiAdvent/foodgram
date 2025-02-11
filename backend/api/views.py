@@ -60,9 +60,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def set_password(self, request):
         serializer = SetPasswordSerializer(
             data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(status=204)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=204)
 
     @action(
         detail=False,
@@ -73,14 +73,14 @@ class UserViewSet(viewsets.ModelViewSet):
     def upload_avatar(self, request):
         """Обновление аватара пользователя."""
         serializer = AvatarSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = request.user
-            user.avatar = serializer.validated_data['avatar']
-            user.save()
-            avatar_url = request.build_absolute_uri(
-                user.avatar.url) if user.avatar else None
-            return Response({"avatar": avatar_url},
-                            status=status.HTTP_200_OK)
+        serializer.is_valid(raise_exception=True)
+        user = request.user
+        user.avatar = serializer.validated_data['avatar']
+        user.save()
+        avatar_url = request.build_absolute_uri(
+            user.avatar.url) if user.avatar else None
+        return Response({"avatar": avatar_url},
+                        status=status.HTTP_200_OK)
 
     @upload_avatar.mapping.delete
     def delete_avatar(self, request):
@@ -110,12 +110,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 'pk': pk
             }
         )
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(
-                serializer.data,
-                status=status.HTTP_201_CREATED
-            )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
 
     @add_subscription.mapping.delete
     def remove_subscription(self, request, pk=None):
@@ -267,8 +267,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         shopping_cart_items = ShoppingCart.objects.filter(user=request.user)
-        ingredients_data = self.get_ingredients_data(shopping_cart_items)
-        ingredients_text = self.generate_ingredients_text(ingredients_data)
+        ingredients_data = self._get_ingredients_data(shopping_cart_items)
+        ingredients_text = self._generate_ingredients_text(ingredients_data)
         response = HttpResponse(
             ingredients_text,
             content_type='text/plain'
@@ -278,7 +278,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return response
 
-    def get_ingredients_data(self, shopping_cart_items):
+    def _get_ingredients_data(self, shopping_cart_items):
         """Получить данные об ингредиентах из корзины."""
         return (
             RecipeIngredient.objects
@@ -288,7 +288,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .order_by('ingredient__name')
         )
 
-    def generate_ingredients_text(self, ingredients_data):
+    def _generate_ingredients_text(self, ingredients_data):
         """Генерация текстового списка покупок из данных ингредиентов."""
         ingredients_text = 'Список покупок:\n\n'
         for ingredient in ingredients_data:
