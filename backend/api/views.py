@@ -160,44 +160,52 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeRequestSerializer
         return RecipeResponseSerializer
 
+    def _add_relation(self, request, recipe, model):
+        """Вспомогательная функция для добавления связи."""
+        user = request.user
+        relation, created = model.objects.get_or_create(
+            user=user,
+            recipe=recipe
+        )
+        if created:
+            serializer = ShortRecipeSerializer(
+                recipe, context={'request': request}
+            )
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'detail': 'Рецепт уже добавлен в список.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def _remove_relation(self, request, recipe, model):
+        """Вспомогательная функция для удаления связи."""
+        user = request.user
+        relation = model.objects.filter(user=user, recipe=recipe)
+        if relation.exists():
+            relation.delete()
+            return Response(
+                {'detail': 'Рецепт удален из списка.'},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        return Response(
+            {'detail': 'Рецепт не найден в списке.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     def _handle_relation(
-            self, request,
-            pk, model,
-            action_type, exists_message=None,
-            not_exists_message=None, success_remove_message=None
+            self,
+            request,
+            model,
+            action_type,
     ):
         """Функция для обработки действий избранного/корзины."""
         recipe = self.get_object()
-        user = request.user
         if action_type == 'add':
-            relation, created = model.objects.get_or_create(
-                user=user,
-                recipe=recipe
-            )
-            if created:
-                serializer = ShortRecipeSerializer(
-                    recipe, context={'request': request}
-                )
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
-                )
-            return Response(
-                {'detail': exists_message}, status=status.HTTP_400_BAD_REQUEST
-            )
+            return self._add_relation(request, recipe, model)
         elif action_type == 'remove':
-            relation = model.objects.filter(user=user, recipe=recipe)
-            if relation.exists():
-                relation.delete()
-                if success_remove_message:
-                    return Response(
-                        {'detail': success_remove_message},
-                        status=status.HTTP_204_NO_CONTENT
-                    )
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(
-                {'detail': not_exists_message},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return self._remove_relation(request, recipe, model)
         return Response(
             {'detail': 'Неверный тип действия'},
             status=status.HTTP_400_BAD_REQUEST
@@ -224,19 +232,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def add_to_shopping_cart(self, request, pk=None):
         """Добавление рецепта в корзину покупок."""
-        return self._handle_relation(
-            request, pk, ShoppingCart, 'add',
-            exists_message='Рецепт уже добавлен в корзину.',
-        )
+        return self._handle_relation(request, ShoppingCart, 'add')
 
     @add_to_shopping_cart.mapping.delete
     def remove_from_shopping_cart(self, request, pk=None):
         """Удаление рецепта из корзины покупок."""
-        return self._handle_relation(
-            request, pk, ShoppingCart, 'remove',
-            not_exists_message='Рецепт не найден в корзине.',
-            success_remove_message='Рецепт удален из корзины.'
-        )
+        return self._handle_relation(request, ShoppingCart, 'remove')
 
     @action(
         detail=True,
@@ -246,19 +247,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def add_to_favorite(self, request, pk=None):
         """Добавление рецепта в избранное."""
-        return self._handle_relation(
-            request, pk, Favorite, 'add',
-            exists_message='Рецепт уже в избранном.',
-        )
+        return self._handle_relation(request, Favorite, 'add',)
 
     @add_to_favorite.mapping.delete
     def remove_from_favorite(self, request, pk=None):
         """Удаление рецепта из избранного."""
-        return self._handle_relation(
-            request, pk, Favorite, 'remove',
-            not_exists_message='Рецепт не найден в избранном.',
-            success_remove_message='Рецепт удален из избранного.'
-        )
+        return self._handle_relation(request, Favorite, 'remove')
 
     @action(
         detail=False,
